@@ -1,0 +1,58 @@
+export const demoSizesData = [
+  {
+    _id: 1,
+    name: "XS",
+    totalAssignedItems: 45,
+    createdAt: "2024-12-01T10:00:00Z",
+    updatedAt: "2025-03-10T15:20:00Z",
+  },
+  {
+    _id: 2,
+    name: "S",
+    totalAssignedItems: 78,
+    createdAt: "2024-12-02T11:15:00Z",
+    updatedAt: "2025-03-11T13:45:00Z",
+  },
+  {
+    _id: 3,
+    name: "M",
+    totalAssignedItems: 112,
+    createdAt: "2024-12-03T09:45:00Z",
+    updatedAt: "2025-03-12T14:10:00Z",
+  },
+  {
+    _id: 4,
+    name: "L",
+    totalAssignedItems: 101,
+    createdAt: "2024-12-04T08:30:00Z",
+    updatedAt: "2025-03-13T12:30:00Z",
+  },
+  {
+    _id: 5,
+    name: "XL",
+    totalAssignedItems: 95,
+    createdAt: "2024-12-05T14:20:00Z",
+    updatedAt: "2025-03-14T10:50:00Z",
+  },
+  {
+    _id: 6,
+    name: "XXL",
+    totalAssignedItems: 60,
+    createdAt: "2024-12-06T16:00:00Z",
+    updatedAt: "2025-03-15T11:15:00Z",
+  },
+  {
+    _id: 7,
+    name: "3XL",
+    totalAssignedItems: 40,
+    createdAt: "2024-12-07T17:10:00Z",
+    updatedAt: "2025-03-16T09:30:00Z",
+  },
+  {
+    _id: 8,
+    name: "4XL",
+    totalAssignedItems: 22,
+    createdAt: "2024-12-08T12:25:00Z",
+    updatedAt: "2025-03-17T08:00:00Z",
+  },
+];
