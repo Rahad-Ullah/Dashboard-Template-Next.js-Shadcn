@@ -11,7 +11,7 @@ import {
 } from "../ui/pagination";
 
 const TablePagination = ({ table, meta }) => {
-  const page = meta?.page;
+  const page = Number(meta?.page);
   const updateSearchParams = useUpdateSearchParams();
 
   return (
@@ -27,7 +27,7 @@ const TablePagination = ({ table, meta }) => {
             <PaginationItem>
               <PaginationPrevious
                 onClick={() =>
-                  updateSearchParams("page", page > 1 ? `${page - 1}` : page)
+                  updateSearchParams("page", page > 1 ? `${page - 1}` : page.toString())
                 }
                 className={page <= 1 ? "cursor-not-allowed opacity-50" : ""}
               />
@@ -54,7 +54,7 @@ const TablePagination = ({ table, meta }) => {
                 onClick={() =>
                   updateSearchParams(
                     "page",
-                    page < meta?.totalPage ? `${page + 1}` : page
+                    page < meta?.totalPage ? `${page + 1}` : page.toString()
                   )
                 }
                 className={

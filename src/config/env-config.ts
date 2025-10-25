@@ -1,10 +1,12 @@
 import dotenv from "dotenv";
 
-// Load environment variables from .env file
+// Load environment variables from .env.local file
 dotenv.config();
 
 export const config = {
-  serverHost: process.env.SERVER_HOST || "10.0.70.50",
-  serverURL: process.env.SERVER_URL || "http://10.0.70.50:5003",
-  baseURL: process.env.BASE_URL || "http://10.0.70.50:5003/api/v1",
+  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5003",
+  baseURL: process.env.BASE_URL || "http://localhost:5003/api/v1",
 };
+
+export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+export const BASE_URL = process.env.BASE_URL;

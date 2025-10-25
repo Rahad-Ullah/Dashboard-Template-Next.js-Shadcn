@@ -3,13 +3,17 @@
 ## Getting Started
 
 First, clone the repository:
+
 ```bash
-git clone https://github.com/Rahad-Ullah/Dashboard-Template-Next.js-ShadcnUI.git
+git clone https://github.com/Rahad-Ullah/Dashboard-Template-Next.js-Shadcn.git
 ```
 
 Second, install packages:
+
 ```bash
 npm install
+# or
+yarn install
 ```
 
 Finally, run the development server:
@@ -23,76 +27,90 @@ yarn dev
 ### Create the `.env.local` file and set environment variables following these:
 
 ```javascript
-SERVER_HOST="10.0.70.50"
-SERVER_URL="http://10.0.70.50:5003"
-BASE_URL="http://10.0.70.50:5003/api/v1"
+BASE_URL = "http://10.0.70.50:5003/api/v1";
+NEXT_PUBLIC_SERVER_URL = "http://10.0.70.50:5003";
 ```
 
 ## Protect your routes by middleware after backend integration
 
 ```javascript
 import type { NextRequest } from "next/server";
+
 import { NextResponse } from "next/server";
-import getProfile from "./utils/getProfile";
+import { myFetch } from "./utils/myFetch";
 
-const authRoutes = ["/login", "/forgot-password"];
-const roleBasedRoutes = {
-  USER: [/^\/dashboard(\/.*)?$/],
-  ADMIN: [/^\/dashboard(\/.*)?$/],
-  // add more roles here if needed
-};
+const authRoutes = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/otp-verify",
+];
 
-type TRole = keyof typeof roleBasedRoutes;
-
+// This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Construct the origin manually if request.nextUrl.origin is undefined
-  const origin =
-    request.nextUrl.origin ||
-    `${
-      request.headers.get("x-forwarded-proto") || "https"
-    }://${request.headers.get("host")}`;
-
-  // Redirect unauthenticated users to login
-  if (pathname === "/") {
-    const redirectUrl = new URL("/dashboard/tests", origin); // Use constructed origin
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // Get the current user from the session
-  const user = await getProfile();
-
-  if (!user) {
+  const accessToken = request.cookies.get("accessToken")?.value;
+  if (!accessToken) {
+    // Allow unauthenticated access to auth routes
     if (authRoutes.includes(pathname)) {
       return NextResponse.next();
     } else {
-      const loginUrl = new URL(`/login?redirect=${pathname}`, origin); // Use constructed origin
-      return NextResponse.redirect(loginUrl);
+      // Redirect unauthenticated users to login
+      return NextResponse.redirect(
+        new URL(`/login?redirect=${pathname}`, request.url)
+      );
     }
   }
 
-  const role = (user.role as string).toUpperCase() as TRole;
+  // Get the current user from server
+  const userRes = await myFetch("/client", { tags: ["profile"] });
+  const profile = userRes.data;
 
-  // Check role-based access
-  if (role && roleBasedRoutes[role]) {
-    const allowedRoutes = roleBasedRoutes[role];
-
-    const hasAccess = allowedRoutes.some((route) =>
-      typeof route === "string" ? pathname === route : pathname.match(route)
-    );
-
-    if (hasAccess) {
+  if (!profile) {
+    // Allow unauthenticated access to auth routes
+    if (authRoutes.includes(pathname)) {
       return NextResponse.next();
+    } else {
+      // Redirect unauthenticated users to login
+      return NextResponse.redirect(
+        new URL(`/login?redirect=${pathname}`, request.url)
+      );
     }
   }
 
-  // Default redirect if access is denied
-  const defaultRedirectUrl = new URL("/dashboard/tests", origin); // Use constructed origin
-  return NextResponse.redirect(defaultRedirectUrl);
+  // Allow only users with ADMIN or SUPER_ADMIN role
+  if (!(profile.role === "ADMIN" || profile.role === "SUPER_ADMIN")) {
+    (await request.cookies).delete("accessToken");
+    (await request.cookies).delete("refreshToken");
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Don't allow authorized users to access auth routes
+  if (authRoutes.includes(pathname)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  return NextResponse.next();
 }
 
+// See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/login", "/forgot-password"],
+  matcher: [
+    "/",
+    "/users/:path*",
+    "/categories/:path*",
+    "/bookings/:path*",
+    "/verification/:path*",
+    "/support/:path*",
+    "/terms-and-conditions/:path*",
+    "/privacy-policy/:path*",
+    "/profile/:path*",
+    "/login",
+    "/reset-password",
+    "/forgot-password",
+    "/otp-verify",
+  ],
 };
+
 ```
